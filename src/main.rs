@@ -1,10 +1,19 @@
+pub mod vec3;
+
 use std::fs::File;
 use std::io::Write;
 use std::process::Command;
+use crate::vec3::Color;
 
 const IMAGE_WIDTH: i32 = 256;
 const IMAGE_HEIGHT: i32 = 256;
 
+
+pub struct Vec3 {
+    pub x: f32,
+    pub y: f32,
+    pub z: f64
+}
 
 fn main() -> std::io::Result<()> {
     let file_name = "./image.ppm";
@@ -14,17 +23,18 @@ fn main() -> std::io::Result<()> {
     file.write_all(b"255\n")?;
     for row in (1..IMAGE_HEIGHT+1).rev() {
         for column in 0..IMAGE_WIDTH {
-            let r: i32 = ((column as f64 / (IMAGE_WIDTH-1) as f64) * 255.999) as i32;
-            let g: i32 = ((row as f64 / (IMAGE_HEIGHT-1) as f64) * 255.999) as i32;
-            let b: i32 = (0.25 * 255.999) as i32;
-            file.write_fmt(format_args!("{} {} {}\n", r, g, b))?;
+            let pixel_color = Color::new(
+                (row as f32) / (IMAGE_WIDTH -1) as f32,
+                (column as f32) / (IMAGE_HEIGHT - 1) as f32,
+                0.25);
+            pixel_color.write(&file)?;
         }
     }
 
 
     Command::new("open")
         .arg(file_name)
-        .output();
+        .output()?;
 
     Ok(())
 }
