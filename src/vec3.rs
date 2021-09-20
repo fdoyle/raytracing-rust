@@ -3,17 +3,18 @@ use std::fs::File;
 use std::io::Write;
 
 
+#[derive(Clone, Copy)]
 pub struct Vec3 {
-    x: f32,
-    y: f32,
-    z: f32,
+    pub x: f64,
+    pub y: f64,
+    pub z: f64,
 }
 
 pub type Point3 = Vec3;
 pub type Color = Vec3;
 
 impl Vec3 {
-    pub fn new(x: f32, y: f32, z: f32) -> Vec3 {
+    pub fn new(x: f64, y: f64, z: f64) -> Vec3 {
         Vec3 {
             x,
             y,
@@ -21,11 +22,11 @@ impl Vec3 {
         }
     }
 
-    pub fn length(&self) -> f32 {
+    pub fn length(&self) -> f64 {
         return self.length_squared().sqrt();
     }
 
-    pub fn length_squared(&self) -> f32 {
+    pub fn length_squared(&self) -> f64 {
         return self.x * self.x + self.y * self.y + self.z * self.z;
     }
 
@@ -33,7 +34,7 @@ impl Vec3 {
         println!("Vec3 {},{},{}", self.x, self.y, self.z)
     }
 
-    pub fn dot(self, rhs: Vec3) -> f32 {
+    pub fn dot(self, rhs: Vec3) -> f64 {
         return self.x * rhs.x + self.y * rhs.y + self.z * rhs.z;
     }
 
@@ -74,16 +75,16 @@ impl ops::AddAssign<Vec3> for Vec3 {
 }
 
 
-impl ops::MulAssign<f32> for Vec3 {
-    fn mul_assign(&mut self, rhs: f32) {
+impl ops::MulAssign<f64> for Vec3 {
+    fn mul_assign(&mut self, rhs: f64) {
         self.x *= rhs;
         self.y *= rhs;
         self.z *= rhs;
     }
 }
 
-impl ops::DivAssign<f32> for Vec3 {
-    fn div_assign(&mut self, rhs: f32) {
+impl ops::DivAssign<f64> for Vec3 {
+    fn div_assign(&mut self, rhs: f64) {
         self.x /= rhs;
         self.y /= rhs;
         self.z /= rhs;
@@ -128,10 +129,10 @@ impl ops::Mul<Vec3> for Vec3 {
     }
 }
 
-impl ops::Mul<f32> for Vec3 {
+impl ops::Mul<f64> for Vec3 {
     type Output = Vec3;
 
-    fn mul(self, rhs: f32) -> Self::Output {
+    fn mul(self, rhs: f64) -> Self::Output {
         return Vec3 {
             x: self.x * rhs,
             y: self.y * rhs,
@@ -140,10 +141,10 @@ impl ops::Mul<f32> for Vec3 {
     }
 }
 
-impl ops::Div<f32> for Vec3 {
+impl ops::Div<f64> for Vec3 {
     type Output = Vec3;
 
-    fn div(self, rhs: f32) -> Self::Output {
+    fn div(self, rhs: f64) -> Self::Output {
         return Vec3 {
             x: self.x / rhs,
             y: self.y / rhs,
@@ -153,10 +154,11 @@ impl ops::Div<f32> for Vec3 {
 }
 
 impl Color {
-    pub fn write(self, mut file: &File) -> std::io::Result<()> {
+    pub fn write(self, mut file: &File) {
         let x:i32 = (255.99999 * self.x) as i32;
         let y:i32 = (255.99999 * self.y) as i32;
         let z:i32 = (255.99999 * self.z) as i32;
-        file.write_fmt(format_args!("{} {} {}\n", x,y,z))
+        file.write_fmt(format_args!("{} {} {}\n", x,y,z));
+        println!("writing: {} {} {}", x, y, z);
     }
 }
