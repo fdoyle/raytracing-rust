@@ -159,6 +159,5 @@ impl Color {
         let y:i32 = (255.99999 * self.y) as i32;
         let z:i32 = (255.99999 * self.z) as i32;
         file.write_fmt(format_args!("{} {} {}\n", x,y,z));
-        println!("writing: {} {} {}", x, y, z);
     }
 }
