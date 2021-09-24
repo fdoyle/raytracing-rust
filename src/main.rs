@@ -41,7 +41,7 @@ fn main() -> std::io::Result<()> {
             let u = i as f64 / image_width as f64;
             let v = j as f64 / image_height as f64;
             let r = Ray::new(origin, lower_left_corner + horizontal * u + vertical * v - origin);
-            let pixel_color = ray_color(r);
+            let pixel_color = ray_color(&r);
             pixel_color.write(&file);
         }
     }
@@ -55,20 +55,39 @@ fn main() -> std::io::Result<()> {
 }
 
 
-fn ray_color(ray: Ray) -> Color {
-    let unit_direction = ray.dir.unit_vector();
-    let t = 0.5 * (unit_direction.y + 1.0);
-    if hit_sphere(Point3::new(0.0, 0.0, -1.0), 0.5, ray) {
-        return Color::new(1.0, 0.0, 0.0);
+fn ray_color(ray: &Ray) -> Color {
+    let t= hit_sphere(Point3::new(0.0,0.0,-1.0), 0.5, ray);
+    if t > 0.0 {
+        let N = (ray.at(t) - Vec3::new(0.0,0.0,-1.0)).unit_vector();
+        return Color::new(N.x + 1.0, N.y + 1.0, N.z + 1.0) * 0.5;
     }
-    return Color::new(1.0, 1.0, 1.0) * (1.0 - t) + Color::new(0.5, 0.7, 1.0) * t;
+    let unit_direction = ray.dir.unit_vector();
+    let t2 = (unit_direction.y + 1.0) * 0.5;
+    return Color::new(1.0, 1.0, 1.0) * (1.0 - t2) + Color::new(0.5, 0.7, 1.0) * t2;
 }
 
-fn hit_sphere(center: Point3, radius: f64, r: Ray) -> bool {
-    let oc = r.origin - center;
-    let a = r.dir.dot(r.dir);
-    let b = 2.0 * oc.dot(r.dir);
-    let c = oc.dot(oc) - radius * radius;
-    let discriminant = b * b - 4.0 * a * c;
-    return discriminant > 0.0;
+// fn hit_sphere(center: Point3, radius: f64, r: &Ray) -> f64 {
+//     let oc = r.origin - center;
+//     let a = r.dir.dot(r.dir);
+//     let b = 2.0 * oc.dot(r.dir);
+//     let c = oc.dot(oc) - radius * radius;
+//     let discriminant = b * b - 4.0 * a * c;
+//     if(discriminant < 0.0) {
+//         return -1.0
+//     } else {
+//         return (-b - discriminant.sqrt()) / (2.0 * a)
+//     }
+// }
+
+fn hit_sphere(center: Point3, radius: f64, r: &Ray) -> f64 {
+    let oc: Vec3 = r.origin - center;
+    let a = r.dir.length_squared();
+    let half_b = oc.dot(r.dir);
+    let c = oc.length_squared() - radius * radius;
+    let discriminant = half_b * half_b - a * c;
+    if(discriminant < 0.0) {
+        return -1.0
+    } else {
+        return (-half_b - discriminant.sqrt()) / a;
+    }
 }
